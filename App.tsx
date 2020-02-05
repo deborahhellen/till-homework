@@ -50,7 +50,7 @@ export const Transaction: React.FC<{t: Transaction}> = (props) => {
   );
 };
 
-const App: React.FC = () => {
+export const App: React.FC = () => {
   const [search, setSearch] = useState("");
 
   const tran = generateTotals();
@@ -123,12 +123,12 @@ const App: React.FC = () => {
 };
 
 // Search by merchant name
-const applySearch = (t: Transaction[], searchTerm: string): Transaction[] => {
+export const applySearch = (t: Transaction[], searchTerm: string): Transaction[] => {
   return [ ...t ].filter((t, i) => t.merchant.toLowerCase().includes(searchTerm.toLowerCase()));
 };
 
 // Generate the transactions list with the balance after each transaction
-const generateTotals = (): Transaction[] => {
+export const generateTotals = (): Transaction[] => {
   let runningTotal = transactions.balance;
 
   return [ ...transactions.transactions ].map((t) => {
@@ -153,5 +153,3 @@ const dateComparator = (t1: Transaction, t2: Transaction): 0 | 1 | -1 => {
     return 1;
   }
 };
-
-export default App;
