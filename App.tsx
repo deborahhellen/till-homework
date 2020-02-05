@@ -53,12 +53,13 @@ export const Transaction: React.FC<{t: Transaction}> = (props) => {
 export const App: React.FC = () => {
   const [search, setSearch] = useState("");
 
-  const tran = generateTotals();
+  const transacts = generateTotals();
 
-  const tr = applySearch(tran, search)
-    .sort((t1, t2) => dateComparator(t1, t2))
-  
-  const currentBal = tran[tran.length - 1].balance;
+  const tr = search 
+    ? applySearch(transacts, search).sort((t1, t2) => dateComparator(t1, t2))
+    : [ ...transacts ].sort((t1, t2) => dateComparator(t1, t2));
+
+  const currentBal = transacts[transacts.length - 1].balance;
 
   return (
     <>
@@ -99,7 +100,9 @@ export const App: React.FC = () => {
               </View>
               {tr.length > 0 
               ? <>
-                {tr.map((t, i) => <Transaction key={i /* Using index as a key prop is not ideal but a key prop is required */} t={t}/>)}
+                {tr.map((t, i) => 
+                  <Transaction key={i /* Using index as a key prop is not ideal but a key prop is required */} t={t}/>)
+                }
                 <View style={styles.section}>
                   <Text style={{ color: "gray", textAlign: "center", flex: 1 }}>End of statement history</Text>
                 </View>
@@ -116,7 +119,7 @@ export const App: React.FC = () => {
 
 // Search by merchant name
 export const applySearch = (t: Transaction[], searchTerm: string): Transaction[] => {
-  return [ ...t ].filter((t, i) => t.merchant.toLowerCase().includes(searchTerm.toLowerCase()));
+  return t.filter((t, i) => t.merchant.toLowerCase().includes(searchTerm.toLowerCase()));
 };
 
 // Generate the transactions list with the balance after each transaction
