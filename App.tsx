@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import SplashScreen from 'react-native-splash-screen'
 import {
   SafeAreaView,
   ScrollView,
@@ -42,19 +43,28 @@ export const Transaction: React.FC<{t: Transaction}> = (props) => {
         paddingVertical: 12, 
         flex: 2,
       }}>
-        <Text style={[styles.boldText, { textAlign: "right" }]}>{`${t.type === "credit" ? "+" : "-"} $${t.amount}`}</Text>
+        <Text style={[styles.boldText, { textAlign: "right" }]}>{`${t.type === "credit" ? "+" : "-"} ${formatCurrency(t.amount)}`}</Text>
         
-        <Text style={{ textAlign: "right", color: "#555" }}>{`$${t.balance}`}</Text>
+        <Text style={{ textAlign: "right", color: "#555" }}>{`${formatCurrency(t.balance)}`}</Text>
       </View>
     </View>
   );
 };
 
 export const App: React.FC = () => {
+
+  // The current search term
   const [search, setSearch] = useState("");
 
+  // Hide the splash screen on first render
+  useEffect(() => {
+    SplashScreen.hide();
+  }, []);
+
+  // Get the transactions list
   const transacts = generateTotals();
 
+  // Apply search (if necessary) and sort transactions recent -> oldest
   const tr = search 
     ? applySearch(transacts, search).sort((t1, t2) => dateComparator(t1, t2))
     : [ ...transacts ].sort((t1, t2) => dateComparator(t1, t2));
@@ -75,7 +85,7 @@ export const App: React.FC = () => {
                 <View style={{ flex: 3 }}>
                   <Text style={{ fontSize: 24, marginBottom: 12 }}>{transactions.name}</Text>
                   <Text style={{ fontSize: 14, color: "#555" }}>Balance:</Text>
-                  <Text style={{ color: "steelblue", fontSize: 30, fontWeight: "800" }}>{`$${currentBal}`}</Text>
+                  <Text style={{ color: "steelblue", fontSize: 30, fontWeight: "800" }}>{`${formatCurrency(currentBal)}`}</Text>
                 </View>
                 <View style={{ flex: 2 }}>
                 <Image
@@ -135,6 +145,11 @@ export const generateTotals = (): Transaction[] => {
       balance: runningTotal,
     };
   });
+};
+
+// Format number as dollars strings
+const formatCurrency = (num: number): string => {
+  return '$' + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 };
 
 // Sort by date
