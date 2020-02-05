@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -6,10 +6,12 @@ import {
   Text,
   StatusBar,
   Image,
+  TextInput,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import styles from "./styles";
-import transactions from "./transactions";
+import * as transactions from "./transactions.json";
 
 interface Transaction {
   merchant: string;
@@ -17,101 +19,139 @@ interface Transaction {
   amount: number;
   details?: string;
   type: string;
+  balance: number;
 }
 
-export const Transaction: React.FC<{t: Transaction, runningTotal: number}> = (props) => {
-  const { t, runningTotal } = props;
+export const Transaction: React.FC<{t: Transaction}> = (props) => {
+  const { t } = props;
   const date = new Date(t.date);
 
   return (
-    <View style={[
-      { 
-        flex: 1, 
-        flexDirection: "row", 
-        borderWidth: 1, 
-        borderRadius: 3,
-        paddingHorizontal: 8,
-        marginHorizontal: 20,
-        marginVertical: 8,
-      }]}>
+    <View style={styles.transaction}>
       <View style={{ 
-        padding: 6, 
+        paddingHorizontal: 6, 
+        paddingVertical: 12,
         flex: 3 
       }}>
-        <Text style={{ fontSize: 18, color: "steelblue" }}>{t.merchant}</Text>
+        <Text style={styles.boldText}>{t.merchant}</Text>
         <Text>{`${date.toDateString()}`}</Text>
         {t.details && <Text style={{ color: "gray"}}>{t.details}</Text>}
       </View>
       <View style={{ 
-        padding: 6, 
+        paddingHorizontal: 6,
+        paddingVertical: 12, 
         flex: 2,
       }}>
-        <Text style={{ fontSize: 18, color: "steelblue", textAlign: "right" }}>{`${t.type === "credit" ? "+" : "-"} $${t.amount}`}</Text>
+        <Text style={[styles.boldText, { textAlign: "right" }]}>{`${t.type === "credit" ? "+" : "-"} $${t.amount}`}</Text>
         
-        <Text style={{ color: "darkGray", textAlign: "right" }}>{`$${runningTotal}`}</Text>
+        <Text style={{ textAlign: "right", color: "#555" }}>{`$${t.balance}`}</Text>
       </View>
     </View>
   );
 };
-const orderedTransactions = [ ...transactions.transactions ].sort((a, b) => {
-  if (a.date === b.date) {
-    return 0;
-  }
-  else if (a.date >= b.date) {
-    return -1;
-  } else {
-    return 1;
-  }
-});
 
 const App: React.FC = () => {
-  let runningTotal = transactions.balance;
+  const [search, setSearch] = useState("");
 
-  const tr = transactions.transactions.map((t, i) => {
-              
-    runningTotal = t.type === "debit" ? runningTotal - t.amount
-      : runningTotal + t.amount;
-
-    return <Transaction
-      key={i /* This is not best practice, but keys must be unique */}
-      t={t}
-      runningTotal={runningTotal}
-    />
-  });
+  const tran = generateTotals();
+  const tr = applySearch(tran, search)
+    .sort((t1, t2) => dateComparator(t1, t2))
+  
+  const total = tran[tran.length - 1].balance;
 
   return (
     <>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
         <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <View style={{flex: 1, backgroundColor: "skyblue", padding: 24}}></View>
-          <View style={styles.body}>
-            <View style={{
-              marginHorizontal: 20,
-              marginBottom: 12, 
-              marginTop: 24, 
-              flex: 1, 
-              flexDirection: "row" 
-            }}>
-              <View style={{ flex: 3 }}>
-                <Text style={{ fontWeight: "600", fontSize: 32 }}>{transactions.name}</Text>
+          contentInsetAdjustmentBehavior="automatic">
+            <View style={styles.header}>
+            <Icon name="bars" size={30} color="white" />
+            </View>
+            <View style={styles.body}>
+              <View style={styles.section}>
+                <View style={{ flex: 3 }}>
+                  <Text style={{ fontSize: 24, marginBottom: 12 }}>{transactions.name}</Text>
+                  <Text style={{ fontSize: 14, color: "#555" }}>Balance:</Text>
+                  <Text style={{ color: "steelblue", fontSize: 30, fontWeight: "800" }}>{`$${total}`}</Text>
+                </View>
+                <View style={{ flex: 2 }}>
+                <Image
+                  style={styles.avatar}
+                  source={{uri: transactions.avatar}}
+                />
+                </View>
               </View>
-              <View style={{ flex: 2 }}>
-              <Image
-                style={{width: 100, height: 100, alignSelf: "flex-end"}}
-                source={{uri: transactions.avatar}}
-              />
+              <View style={{
+                marginHorizontal: 20,
+                marginTop: 6, 
+                flex: 1, 
+                flexDirection: "row"
+              }}>
+                <Text style={{ fontSize: 16 }}>Transactions</Text>
+              </View>
+              <View style={[{
+                marginHorizontal: 20,
+                marginTop: 6, 
+                flex: 1, 
+                flexDirection: "row"
+              }, { borderWidth: 1, borderColor: "gray" }]}>
+                <View style={{
+                  flex: 1, 
+                  flexDirection: "row",
+                  alignContent: "center",
+                  alignItems: "center"
+                }}>
+                  <TextInput
+                    style={{height: 38, flex: 9 }}
+                    placeholder="Search transactions by name..."
+                    onChangeText={(text) => setSearch(text)}
+                    value={search}
+                  />
+                  <Icon style={{ flex: 1 }} name="search" size={18} color="gray" />
+                </View>
+              </View>
+              {tr.map((t, i) => <Transaction key={i /* This is not best practice but a key prop is required */} t={t}/>)}
+              <View style={styles.section}>
+                <Text style={{ color: "gray", textAlign: "center", flex: 1 }}>End of statement history</Text>
               </View>
             </View>
-            {tr}
-          </View>
         </ScrollView>
       </SafeAreaView>
     </>
   );
 };
 
+// Search by merchant name
+const applySearch = (t: Transaction[], searchTerm: string): Transaction[] => {
+  return [ ...t ].filter((t, i) => t.merchant.toLowerCase().includes(searchTerm.toLowerCase()));
+};
+
+// Generate the transactions list with the balance after each transaction
+const generateTotals = (): Transaction[] => {
+  let runningTotal = transactions.balance;
+
+  return [ ...transactions.transactions ].map((t) => {
+    runningTotal = t.type === "debit" ? runningTotal - t.amount
+      : runningTotal + t.amount;
+
+    return {
+      ...t,
+      balance: runningTotal,
+    };
+  });
+};
+
+// Sort by date
+const dateComparator = (t1: Transaction, t2: Transaction): 0 | 1 | -1 => {
+  if (t1.date === t2.date) {
+    return 0;
+  }
+  else if (t1.date >= t2.date) {
+    return -1;
+  } else {
+    return 1;
+  }
+};
 
 export default App;

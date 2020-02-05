@@ -1,4 +1,4 @@
-export default {
+{
     "name": "Johnny Ray",
     "avatar": "http://www.fillmurray.com/200/200",
     "balance": 212,
