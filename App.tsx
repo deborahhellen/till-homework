@@ -88,7 +88,7 @@ export const App: React.FC = () => {
                 flex: 1, 
                 flexDirection: "row"
               }}>
-                <Text style={{ fontSize: 16 }}>Transactions</Text>
+                <Text style={{ fontSize: 16, color: "#555" }}>Transactions</Text>
               </View>
               <View style={[{
                 marginHorizontal: 20,
@@ -100,22 +100,30 @@ export const App: React.FC = () => {
                   flex: 1, 
                   flexDirection: "row",
                   alignContent: "center",
-                  alignItems: "center"
+                  alignItems: "center",
+                  backgroundColor: "white", 
+                  borderRadius: 3 
                 }}>
                   <TextInput
                     style={{height: 38, flex: 9 }}
-                    placeholder="Search transactions by name..."
+                    placeholder="Search..."
                     onChangeText={(text) => setSearch(text)}
                     value={search}
                   />
                   <Icon style={{ flex: 1 }} name="search" size={18} color="gray" />
                 </View>
               </View>
-              {tr.map((t, i) => <Transaction key={i /* This is not best practice but a key prop is required */} t={t}/>)}
-              <View style={styles.section}>
-                <Text style={{ color: "gray", textAlign: "center", flex: 1 }}>End of statement history</Text>
-              </View>
-            </View>
+              {tr.length > 0 
+              ? <>
+                {tr.map((t, i) => <Transaction key={i /* This is not best practice but a key prop is required */} t={t}/>)}
+                <View style={styles.section}>
+                  <Text style={{ color: "gray", textAlign: "center", flex: 1 }}>End of statement history</Text>
+                </View>
+              </>
+              : <View style={styles.section}>
+                <Text style={{ color: "gray", textAlign: "center", flex: 1 }}>No transactions to show</Text>
+              </View>}
+          </View>
         </ScrollView>
       </SafeAreaView>
     </>
