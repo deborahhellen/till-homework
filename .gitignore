@@ -1,23 +1,22 @@
 .DS_store
 node_modules/
 
-android/app/build/generated/
-android/app/build/outputs/
-android/app/release/
-android/app/build/
-android/app/build/intermediates/
-android/build/
-android/.gradle/
-android/.idea
-android/**/*.iml
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/usage.statistics.xml
-.idea/**/dictionaries
-.idea/**/shelf
+# Android/IntelliJ
+#
+build/
+.idea
 .gradle
 local.properties
-ios/.idea
+*.iml
+
+# Generated files
+android/bin/
+android/gen/
+android/out/
+
+# Gradle files
+android/.gradle/
+android/build/
 
 # Android Release
 #
