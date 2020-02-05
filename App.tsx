@@ -54,10 +54,11 @@ export const App: React.FC = () => {
   const [search, setSearch] = useState("");
 
   const tran = generateTotals();
+
   const tr = applySearch(tran, search)
     .sort((t1, t2) => dateComparator(t1, t2))
   
-  const total = tran[tran.length - 1].balance;
+  const currentBal = tran[tran.length - 1].balance;
 
   return (
     <>
@@ -73,7 +74,7 @@ export const App: React.FC = () => {
                 <View style={{ flex: 3 }}>
                   <Text style={{ fontSize: 24, marginBottom: 12 }}>{transactions.name}</Text>
                   <Text style={{ fontSize: 14, color: "#555" }}>Balance:</Text>
-                  <Text style={{ color: "steelblue", fontSize: 30, fontWeight: "800" }}>{`$${total}`}</Text>
+                  <Text style={{ color: "steelblue", fontSize: 30, fontWeight: "800" }}>{`$${currentBal}`}</Text>
                 </View>
                 <View style={{ flex: 2 }}>
                 <Image
@@ -82,32 +83,15 @@ export const App: React.FC = () => {
                 />
                 </View>
               </View>
-              <View style={{
-                marginHorizontal: 20,
-                marginTop: 6, 
-                flex: 1, 
-                flexDirection: "row"
-              }}>
+              <View style={styles.section}>
                 <Text style={{ fontSize: 16, color: "#555" }}>Transactions</Text>
               </View>
-              <View style={[{
-                marginHorizontal: 20,
-                marginTop: 6, 
-                flex: 1, 
-                flexDirection: "row"
-              }, { borderWidth: 1, borderColor: "gray" }]}>
-                <View style={{
-                  flex: 1, 
-                  flexDirection: "row",
-                  alignContent: "center",
-                  alignItems: "center",
-                  backgroundColor: "white", 
-                  borderRadius: 3 
-                }}>
+              <View style={[styles.section, { borderWidth: 1, borderColor: "gray" }]}>
+                <View style={styles.search}>
                   <TextInput
                     style={{height: 38, flex: 9 }}
                     placeholder="Search..."
-                    onChangeText={(text) => setSearch(text)}
+                    onChangeText={setSearch}
                     value={search}
                   />
                   <Icon style={{ flex: 1 }} name="search" size={18} color="gray" />
@@ -115,7 +99,7 @@ export const App: React.FC = () => {
               </View>
               {tr.length > 0 
               ? <>
-                {tr.map((t, i) => <Transaction key={i /* This is not best practice but a key prop is required */} t={t}/>)}
+                {tr.map((t, i) => <Transaction key={i /* Using index as a key prop is not ideal but a key prop is required */} t={t}/>)}
                 <View style={styles.section}>
                   <Text style={{ color: "gray", textAlign: "center", flex: 1 }}>End of statement history</Text>
                 </View>

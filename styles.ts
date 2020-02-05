@@ -1,13 +1,12 @@
 import { StyleSheet } from 'react-native';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const styles = StyleSheet.create({
     body: {
-      backgroundColor: Colors.white,
       marginBottom: 20,
     },
     header: { 
       flex: 1, 
+      marginBottom: 8,
       backgroundColor: "skyblue", 
       padding: 16,
       borderBottomWidth: 1, 
@@ -15,13 +14,14 @@ const styles = StyleSheet.create({
     },
     section: {
       marginHorizontal: 20, 
-      marginTop: 20, 
+      marginTop: 8, 
       flex: 1, 
       flexDirection: "row",
     },
     avatar: { 
       borderWidth: 1, 
       borderColor: "gray", 
+      borderRadius: 3,
       width: 110, 
       height: 110, 
       alignSelf: "flex-end",
@@ -34,12 +34,20 @@ const styles = StyleSheet.create({
       borderColor: "gray",
       paddingHorizontal: 8,
       marginHorizontal: 20,
-      marginVertical: 8,
+      marginTop: 8,
       backgroundColor: "white",
     },
     boldText: { 
       fontSize: 18, 
       color: "steelblue",
+    },
+    search: {
+      flex: 1, 
+      flexDirection: "row",
+      alignContent: "center",
+      alignItems: "center",
+      backgroundColor: "white", 
+      borderRadius: 3 
     },
 });
 
